@@ -21,3 +21,18 @@ variable "component" {
   description = "https://hmcts.github.io/glossary/#component"
   type        = string
 }
+
+variable "containers" {
+  description = "Container configuration"
+  type = list(object({
+    name   = string
+    image  = string
+    cpu    = number
+    memory = string
+    env = optional(list(object({
+      name        = string
+      secret_name = optional(string)
+      value       = optional(string)
+    })), [])
+  }))
+}

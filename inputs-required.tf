@@ -34,3 +34,4 @@ variable "containers" {
       value       = optional(string)
     })), [])
   }))
+}

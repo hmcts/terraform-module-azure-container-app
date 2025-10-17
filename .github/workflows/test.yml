@@ -1,0 +1,83 @@
+name: Integration Tests
+on:
+  pull_request:
+    branches:
+      - master
+      - main
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: "Integration Test"
+    runs-on: ubuntu-latest
+    environment: test
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.13.2
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: tests
+
+      - name: Terraform Validate
+        run: terraform validate
+        working-directory: tests
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+        working-directory: tests
+        env:
+          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+
+      - name: Terraform Apply
+        if: github.event_name == 'workflow_dispatch'
+        run: terraform apply -auto-approve tfplan
+        working-directory: tests
+        env:
+          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+
+      - name: Test Container App
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          FQDN=$(terraform output -raw container_app_fqdn)
+          echo "Testing FQDN: $FQDN"
+          
+          # Wait for container to be ready
+          sleep 30
+          
+          # Test HTTP endpoint
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "https://$FQDN")
+          if [ "$RESPONSE" -eq 200 ]; then
+            echo "✅ Nginx container is responding correctly"
+          else
+            echo "❌ Unexpected response: $RESPONSE"
+            exit 1
+          fi
+        working-directory: tests
+
+      - name: Terraform Destroy
+        if: always() && github.event_name == 'workflow_dispatch'
+        run: terraform destroy -auto-approve
+        working-directory: tests
+        env:
+          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}

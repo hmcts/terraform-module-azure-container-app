@@ -37,8 +37,9 @@ resource "azurerm_container_app" "main" {
   }
 
   dynamic "registry" {
-    for_each = var.registry_identity_id != null ? [1] : []
+    for_each = var.registry_identity_id && var.registry_server != null ? [1] : []
     content {
+      server   = var.registry_server
       identity = var.registry_identity_id
     }
   }
@@ -50,7 +51,7 @@ resource "azurerm_container_app" "main" {
     dynamic "container" {
       for_each = var.containers
       content {
-        name   = container.value.name
+        name   = container.key
         image  = container.value.image
         cpu    = container.value.cpu
         memory = container.value.memory

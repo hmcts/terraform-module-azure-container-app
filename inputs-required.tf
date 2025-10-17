@@ -24,8 +24,7 @@ variable "component" {
 
 variable "containers" {
   description = "Container configuration"
-  type = list(object({
-    name   = string
+  type = map(object({
     image  = string
     cpu    = number
     memory = string
@@ -35,4 +34,3 @@ variable "containers" {
       value       = optional(string)
     })), [])
   }))
-}

@@ -24,7 +24,7 @@ module "setup" {
 
   common_tags = {
     environment = "test"
-    project     = "test"
+    project     = "container-app-test"
     managedBy   = "terraform"
   }
 

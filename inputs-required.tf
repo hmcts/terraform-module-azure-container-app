@@ -15,6 +15,7 @@ variable "product" {
 
 variable "project" {
   description = "Project name - sds or cft."
+  type        = string
 }
 
 variable "component" {
@@ -28,10 +29,10 @@ variable "containers" {
     image  = string
     cpu    = number
     memory = string
-    env = optional(list(object({
+    env = list(object({
       name        = string
-      secret_name = optional(string)
-      value       = optional(string)
-    })), [])
+      secret_name = string
+      value       = string
+    }))
   }))
 }

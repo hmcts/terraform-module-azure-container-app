@@ -10,7 +10,7 @@ resource "azurerm_container_app_environment" "main" {
   location                       = local.resource_group_location
   resource_group_name            = local.resource_group_name
   log_analytics_workspace_id     = var.log_analytics_workspace_id
-  infrastructure_subnet_id       = var.subnet_id
+  infrastructure_subnet_id       = var.infrastructure_subnet_id
   internal_load_balancer_enabled = var.internal_load_balancer_enabled
   zone_redundancy_enabled        = var.zone_redundancy_enabled
   tags                           = var.common_tags
@@ -60,8 +60,8 @@ resource "azurerm_container_app" "main" {
           for_each = container.value.env
           content {
             name        = env.value.name
-            secret_name = env.value.secret_name
-            value       = env.value.value
+            secret_name = try(env.value.secret_name, null)
+            value       = try(env.value.value, null)
           }
         }
       }

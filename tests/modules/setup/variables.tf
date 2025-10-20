@@ -61,11 +61,11 @@ variable "containers" {
     image  = string
     cpu    = number
     memory = string
-    env = optional(list(object({
+    env = list(object({
       name        = string
-      secret_name = optional(string)
-      value       = optional(string)
-    })), [])
+      secret_name = string
+      value       = string
+    }))
   }))
   default = {
     nginx = {

@@ -27,12 +27,6 @@ variable "log_analytics_workspace_id" {
   type        = string
 }
 
-variable "infrastructure_subnet_id" {
-  description = "Infrastructure subnet ID for internal load balancer"
-  type        = string
-  default     = null
-}
-
 variable "internal_load_balancer_enabled" {
   description = "Enable internal load balancer"
   type        = bool

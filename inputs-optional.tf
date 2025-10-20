@@ -69,7 +69,7 @@ variable "ingress_transport" {
 
   validation {
     condition     = contains(["auto", "http", "http2", "tcp"], var.ingress_transport)
-    error_message = "Transport must be one of: auto, http, http2, tcp"
+    error_message = "Transport must be one of: auto, http, http2, tcp."
   }
 }
 

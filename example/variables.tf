@@ -1,3 +1,5 @@
 variable "env" {
-  default = "test"
+  description = "Environment value"
+  type        = string
+  default     = "test"
 }

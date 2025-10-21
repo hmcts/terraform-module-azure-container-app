@@ -50,7 +50,6 @@ module "todo_resource_name" {
 | <a name="input_containers"></a> [containers](#input\_containers) | Container configuration | <pre>map(object({<br/>    image  = string<br/>    cpu    = number<br/>    memory = string<br/>    env = list(object({<br/>      name        = string<br/>      secret_name = string<br/>      value       = string<br/>    }))<br/>  }))</pre> | n/a | yes |
 | <a name="input_env"></a> [env](#input\_env) | Environment value | `string` | n/a | yes |
 | <a name="input_existing_resource_group_name"></a> [existing\_resource\_group\_name](#input\_existing\_resource\_group\_name) | Name of existing resource group to deploy resources into | `string` | `null` | no |
-| <a name="input_infrastructure_subnet_id"></a> [infrastructure\_subnet\_id](#input\_infrastructure\_subnet\_id) | Infrastructure subnet ID for internal load balancer | `string` | `null` | no |
 | <a name="input_ingress_allow_insecure_connections"></a> [ingress\_allow\_insecure\_connections](#input\_ingress\_allow\_insecure\_connections) | Allow insecure connections to the ingress | `bool` | `false` | no |
 | <a name="input_ingress_enabled"></a> [ingress\_enabled](#input\_ingress\_enabled) | Enable ingress | `bool` | `true` | no |
 | <a name="input_ingress_external_enabled"></a> [ingress\_external\_enabled](#input\_ingress\_external\_enabled) | Enable external ingress | `bool` | `true` | no |
@@ -64,7 +63,6 @@ module "todo_resource_name" {
 | <a name="input_min_replicas"></a> [min\_replicas](#input\_min\_replicas) | Minimum number of replicas | `number` | `0` | no |
 | <a name="input_name"></a> [name](#input\_name) | The default name will be product+component+env, you can override the product+component part by setting this | `string` | `""` | no |
 | <a name="input_product"></a> [product](#input\_product) | https://hmcts.github.io/glossary/#product | `string` | n/a | yes |
-| <a name="input_project"></a> [project](#input\_project) | Project name - sds or cft. | `string` | n/a | yes |
 | <a name="input_registry_identity_id"></a> [registry\_identity\_id](#input\_registry\_identity\_id) | User Assigned Identity ID for pulling images from ACR | `string` | `null` | no |
 | <a name="input_registry_server"></a> [registry\_server](#input\_registry\_server) | Container registry server, e.g. myregistry.azurecr.io | `string` | `null` | no |
 | <a name="input_revision_mode"></a> [revision\_mode](#input\_revision\_mode) | Revision mode (Single or Multiple) | `string` | `"Single"` | no |

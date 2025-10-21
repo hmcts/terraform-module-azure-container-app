@@ -1,3 +1,4 @@
+#ts:skip=AC_AZURE_0389 Resource lock is defined in separate block below
 resource "azurerm_resource_group" "rg" {
   count = var.existing_resource_group_name == null ? 1 : 0
 

@@ -36,6 +36,7 @@ module "todo_resource_name" {
 |------|------|
 | [azurerm_container_app.main](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/container_app) | resource |
 | [azurerm_container_app_environment.main](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/container_app_environment) | resource |
+| [azurerm_management_lock.rg_lock](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/management_lock) | resource |
 | [azurerm_resource_group.rg](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) | resource |
 | [azurerm_user_assigned_identity.container_app](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/user_assigned_identity) | resource |
 | [azurerm_key_vault_secret.secrets](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
@@ -63,6 +64,7 @@ module "todo_resource_name" {
 | <a name="input_min_replicas"></a> [min\_replicas](#input\_min\_replicas) | Minimum number of replicas | `number` | `0` | no |
 | <a name="input_name"></a> [name](#input\_name) | The default name will be product+component+env, you can override the product+component part by setting this | `string` | `""` | no |
 | <a name="input_product"></a> [product](#input\_product) | https://hmcts.github.io/glossary/#product | `string` | n/a | yes |
+| <a name="input_project"></a> [project](#input\_project) | Project name - sds or cft. | `string` | n/a | yes |
 | <a name="input_registry_identity_id"></a> [registry\_identity\_id](#input\_registry\_identity\_id) | User Assigned Identity ID for pulling images from ACR | `string` | `null` | no |
 | <a name="input_registry_server"></a> [registry\_server](#input\_registry\_server) | Container registry server, e.g. myregistry.azurecr.io | `string` | `null` | no |
 | <a name="input_revision_mode"></a> [revision\_mode](#input\_revision\_mode) | Revision mode (Single or Multiple) | `string` | `"Single"` | no |

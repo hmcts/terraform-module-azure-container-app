@@ -57,3 +57,10 @@ resource "azurerm_resource_group" "example" {
     project     = "container-app-example"
   }
 }
+
+resource "azurerm_management_lock" "example_rg" {
+  name       = "resource-group-lock"
+  scope      = azurerm_resource_group.example.id
+  lock_level = "CanNotDelete"
+  notes      = "Prevent accidental deletion"
+}

@@ -55,6 +55,13 @@ resource "azurerm_resource_group" "test" {
   tags     = var.common_tags
 }
 
+resource "azurerm_management_lock" "test_rg" {
+  name       = "resource-group-lock"
+  scope      = azurerm_resource_group.test.id
+  lock_level = "CanNotDelete"
+  notes      = "Prevent accidental deletion"
+}
+
 # VNet resources (optional)
 resource "azurerm_virtual_network" "test" {
   count               = var.enable_vnet ? 1 : 0
@@ -81,4 +88,18 @@ resource "azurerm_subnet" "test" {
       ]
     }
   }
+}
+
+resource "azurerm_network_security_group" "test" {
+  count               = var.enable_vnet ? 1 : 0
+  name                = "${var.product}-${var.component}-${var.env}-nsg"
+  location            = var.location
+  resource_group_name = azurerm_resource_group.test.name
+  tags                = var.common_tags
+}
+
+resource "azurerm_subnet_network_security_group_association" "test" {
+  count                     = var.enable_vnet ? 1 : 0
+  subnet_id                 = azurerm_subnet.test[0].id
+  network_security_group_id = azurerm_network_security_group.test[0].id
 }

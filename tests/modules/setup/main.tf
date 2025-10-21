@@ -72,7 +72,6 @@ resource "azurerm_virtual_network" "test" {
   tags                = var.common_tags
 }
 
-#ts:skip=AC_AZURE_0356 NSG association is defined in separate block below
 resource "azurerm_subnet" "test" {
   count                = var.enable_vnet ? 1 : 0
   name                 = "container-app-subnet"

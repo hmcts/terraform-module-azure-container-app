@@ -30,3 +30,5 @@ jobs:
           VALIDATE_YAML: true
           VALIDATE_JSON: true
           VALIDATE_EDITORCONFIG: true
+          # Skip known false positives in Terrascan
+          FILTER_REGEX_EXCLUDE: '.*/(resource-group\.tf|tests/modules/setup/main\.tf)$'

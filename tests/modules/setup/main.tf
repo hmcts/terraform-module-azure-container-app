@@ -102,4 +102,9 @@ resource "azurerm_subnet_network_security_group_association" "test" {
   count                     = var.enable_vnet ? 1 : 0
   subnet_id                 = azurerm_subnet.test[0].id
   network_security_group_id = azurerm_network_security_group.test[0].id
+
+  depends_on = [
+    azurerm_subnet.test,
+    azurerm_network_security_group.test
+  ]
 }

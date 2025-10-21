@@ -13,4 +13,6 @@ resource "azurerm_management_lock" "rg_lock" {
   scope      = azurerm_resource_group.rg[0].id
   lock_level = "CanNotDelete"
   notes      = "Prevent accidental deletion"
+
+  depends_on = [azurerm_resource_group.rg]
 }

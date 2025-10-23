@@ -2,9 +2,7 @@ resource "azurerm_user_assigned_identity" "container_app" {
   name                = "${local.name}-${var.env}-identity"
   resource_group_name = local.resource_group_name
   location            = local.resource_group_location
-  tags = merge(var.common_tags, {
-    project = var.project
-  })
+  tags                = local.tags
 }
 
 resource "azurerm_container_app_environment" "main" {
@@ -15,9 +13,7 @@ resource "azurerm_container_app_environment" "main" {
   infrastructure_subnet_id       = var.subnet_id
   internal_load_balancer_enabled = var.internal_load_balancer_enabled
   zone_redundancy_enabled        = var.zone_redundancy_enabled
-  tags = merge(var.common_tags, {
-    project = var.project
-  })
+  tags                           = local.tags
 }
 
 data "azurerm_key_vault_secret" "secrets" {
@@ -33,9 +29,7 @@ resource "azurerm_container_app" "main" {
   resource_group_name          = local.resource_group_name
   revision_mode                = var.revision_mode
   workload_profile_name        = var.workload_profile_name
-  tags = merge(var.common_tags, {
-    project = var.project # ✅ NOW IT'S USED!
-  })
+  tags                         = local.tags
 
   identity {
     type         = var.registry_identity_id != null ? "UserAssigned" : "SystemAssigned"
@@ -43,7 +37,7 @@ resource "azurerm_container_app" "main" {
   }
 
   dynamic "registry" {
-    for_each = var.registry_identity_id && var.registry_server != null ? [1] : []
+    for_each = var.registry_identity_id != null && var.registry_server != null ? [1] : []
     content {
       server   = var.registry_server
       identity = var.registry_identity_id

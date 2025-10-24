@@ -1,9 +1,9 @@
 name: "Terraform"
-
 on:
   pull_request:
     branches:
       - master
+      - main
 
 jobs:
   terraform:
@@ -13,7 +13,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Checkout
+      - name: Checkout HMCTS Libraries
         uses: actions/checkout@v5
         with:
           repository: hmcts/cnp-azuredevops-libraries
@@ -28,13 +28,21 @@ jobs:
         working-directory: ./
         shell: bash
 
-      - name: Terraform Init
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Init (Example)
         run: terraform init
         working-directory: example
 
-      - name: Terraform validate
+      - name: Terraform Validate (Example)
         run: terraform validate
         working-directory: example
 
-      - name: Terraform format
-        run: terraform fmt -check -recursive
+      - name: Terraform Init (Tests)
+        run: terraform init
+        working-directory: tests
+
+      - name: Terraform Validate (Tests)
+        run: terraform validate
+        working-directory: tests

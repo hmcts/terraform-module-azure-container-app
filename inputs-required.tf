@@ -15,9 +15,24 @@ variable "product" {
 
 variable "project" {
   description = "Project name - sds or cft."
+  type        = string
 }
 
 variable "component" {
   description = "https://hmcts.github.io/glossary/#component"
   type        = string
+}
+
+variable "containers" {
+  description = "Container configuration"
+  type = map(object({
+    image  = string
+    cpu    = number
+    memory = string
+    env = list(object({
+      name        = string
+      secret_name = string
+      value       = string
+    }))
+  }))
 }

@@ -1,0 +1,34 @@
+name: Lint
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  lint:
+    name: Super-Linter
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run GitHub Super-Linter
+        uses: github/super-linter@v5
+        env:
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VALIDATE_TERRAFORM_TERRASCAN: true
+          VALIDATE_TERRAFORM_TFLINT: true
+          VALIDATE_TERRAFORM: true
+          VALIDATE_YAML: true
+          VALIDATE_JSON: true
+          VALIDATE_EDITORCONFIG: true
+          # Skip known false positives in Terrascan
+          FILTER_REGEX_EXCLUDE: '.*/(resource-group\.tf|tests/modules/setup/main\.tf)$'

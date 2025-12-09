@@ -8,7 +8,7 @@ locals {
     project = var.project
   })
 
-  consumption_workload_profile_name = "consumption"
+  consumption_workload_profile_name = "Consumption"
 }
 
 data "azurerm_resource_group" "existing" {

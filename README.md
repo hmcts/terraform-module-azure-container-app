@@ -1,19 +1,179 @@
-# terraform-module-template
+# terraform-module-azure-container-app
 
-<!-- TODO fill in resource name in link to product documentation -->
+Terraform module for [Azure Container Apps](https://learn.microsoft.com/en-us/azure/container-apps/).
 
-Terraform module for [Resource name](https://example.com).
+This module supports deploying **multiple container apps** within a single Container App Environment, allowing you to create microservices architectures or deploy multiple applications that share the same infrastructure.
 
-## Example
+## Features
 
-<!-- todo update module name -->
+- ✅ Deploy multiple container apps in a single environment
+- ✅ Shared Container App Environment with custom workload profiles
+- ✅ VNet integration support
+- ✅ Key Vault secret integration
+- ✅ Ingress configuration (external/internal)
+- ✅ Custom scaling (min/max replicas)
+- ✅ Azure Container Registry integration
+
+## Examples
+
+### Single Container App
+
+Deploy a single container app:
 
 ```hcl
-module "todo_resource_name" {
-  source = "git@github.com:hmcts/terraform-module-todo?ref=main"
-  ...
+module "container_app" {
+  source = "git@github.com:hmcts/terraform-module-azure-container-app?ref=main"
+
+  product   = "myproduct"
+  component = "nginx"
+  env       = "dev"
+  project   = "sds"
+
+  common_tags = {
+    environment = "dev"
+  }
+
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.main.id
+
+  container_apps = {
+    main = {
+      containers = {
+        nginx = {
+          image  = "nginx:alpine"
+          cpu    = 0.25
+          memory = "0.5Gi"
+          env    = []
+        }
+      }
+
+      ingress_enabled     = true
+      ingress_target_port = 80
+      min_replicas        = 1
+      max_replicas        = 3
+    }
+  }
 }
 
+# Access the FQDN
+output "app_url" {
+  value = "https://${module.container_app.container_app_fqdns["main"]}"
+}
+```
+
+### Multiple Container Apps
+
+Deploy multiple container apps (frontend, backend, worker) in a single environment:
+
+```hcl
+module "container_apps" {
+  source = "git@github.com:hmcts/terraform-module-azure-container-app?ref=main"
+
+  product   = "myproduct"
+  component = "microservices"
+  env       = "prod"
+  project   = "cft"
+  location  = "UK South"
+
+  common_tags = {
+    environment = "production"
+    managedBy   = "terraform"
+  }
+
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.main.id
+  subnet_id                  = azurerm_subnet.main.id
+
+  container_apps = {
+    # Frontend application
+    frontend = {
+      revision_mode = "Single"
+      min_replicas  = 2
+      max_replicas  = 10
+
+      containers = {
+        web = {
+          image  = "myregistry.azurecr.io/frontend:latest"
+          cpu    = 0.5
+          memory = "1Gi"
+          env = [
+            {
+              name  = "API_URL"
+              value = "http://myproduct-microservices-backend-prod.internal"
+            }
+          ]
+        }
+      }
+
+      ingress_enabled          = true
+      ingress_external_enabled = true
+      ingress_target_port      = 3000
+      ingress_transport        = "http"
+    }
+
+    # Backend API
+    backend = {
+      revision_mode = "Single"
+      min_replicas  = 3
+      max_replicas  = 20
+
+      containers = {
+        api = {
+          image  = "myregistry.azurecr.io/backend:latest"
+          cpu    = 1.0
+          memory = "2Gi"
+          env = [
+            {
+              name        = "DB_PASSWORD"
+              secret_name = "db-password"
+            }
+          ]
+        }
+      }
+
+      key_vault_secrets = [
+        {
+          name                  = "db-password"
+          key_vault_id          = azurerm_key_vault.main.id
+          key_vault_secret_name = "database-password"
+        }
+      ]
+
+      ingress_enabled          = true
+      ingress_external_enabled = false  # Internal only
+      ingress_target_port      = 8080
+      ingress_transport        = "http"
+
+      registry_server      = "myregistry.azurecr.io"
+      registry_identity_id = azurerm_user_assigned_identity.acr.id
+    }
+
+    # Background worker (no ingress)
+    worker = {
+      revision_mode = "Single"
+      min_replicas  = 1
+      max_replicas  = 5
+
+      containers = {
+        processor = {
+          image  = "myregistry.azurecr.io/worker:latest"
+          cpu    = 0.5
+          memory = "1Gi"
+          env    = []
+        }
+      }
+
+      ingress_enabled = false
+    }
+  }
+}
+
+# Access outputs
+output "frontend_url" {
+  value = "https://${module.container_apps.container_app_fqdns["frontend"]}"
+}
+
+output "all_app_names" {
+  value = module.container_apps.container_app_names
+}
 ```
 
 <!-- BEGIN_TF_DOCS -->
@@ -48,26 +208,15 @@ module "todo_resource_name" {
 |------|-------------|------|---------|:--------:|
 | <a name="input_common_tags"></a> [common\_tags](#input\_common\_tags) | Common tag to be applied to resources | `map(string)` | n/a | yes |
 | <a name="input_component"></a> [component](#input\_component) | https://hmcts.github.io/glossary/#component | `string` | n/a | yes |
-| <a name="input_containers"></a> [containers](#input\_containers) | Container configuration | <pre>map(object({<br/>    image  = string<br/>    cpu    = number<br/>    memory = string<br/>    env = list(object({<br/>      name        = string<br/>      secret_name = string<br/>      value       = string<br/>    }))<br/>  }))</pre> | n/a | yes |
+| <a name="input_container_apps"></a> [container\_apps](#input\_container\_apps) | Map of container app configurations. Each key is the app name suffix. | <pre>map(object({<br/>    revision_mode = optional(string, "Single")<br/>    min_replicas  = optional(number, 0)<br/>    max_replicas  = optional(number, 10)<br/><br/>    containers = map(object({<br/>      image  = string<br/>      cpu    = number<br/>      memory = string<br/>      env = list(object({<br/>        name        = string<br/>        secret_name = optional(string)<br/>        value       = optional(string)<br/>      }))<br/>    }))<br/><br/>    key_vault_secrets = optional(list(object({<br/>      name                  = string<br/>      key_vault_id          = string<br/>      key_vault_secret_name = string<br/>    })), [])<br/><br/>    registry_identity_id = optional(string)<br/>    registry_server      = optional(string)<br/><br/>    ingress_enabled                    = optional(bool, true)<br/>    ingress_external_enabled           = optional(bool, true)<br/>    ingress_target_port                = optional(number, 80)<br/>    ingress_transport                  = optional(string, "auto")<br/>    ingress_allow_insecure_connections = optional(bool, false)<br/>  }))</pre> | n/a | yes |
 | <a name="input_env"></a> [env](#input\_env) | Environment value | `string` | n/a | yes |
 | <a name="input_existing_resource_group_name"></a> [existing\_resource\_group\_name](#input\_existing\_resource\_group\_name) | Name of existing resource group to deploy resources into | `string` | `null` | no |
-| <a name="input_ingress_allow_insecure_connections"></a> [ingress\_allow\_insecure\_connections](#input\_ingress\_allow\_insecure\_connections) | Allow insecure connections to the ingress | `bool` | `false` | no |
-| <a name="input_ingress_enabled"></a> [ingress\_enabled](#input\_ingress\_enabled) | Enable ingress | `bool` | `true` | no |
-| <a name="input_ingress_external_enabled"></a> [ingress\_external\_enabled](#input\_ingress\_external\_enabled) | Enable external ingress | `bool` | `true` | no |
-| <a name="input_ingress_target_port"></a> [ingress\_target\_port](#input\_ingress\_target\_port) | Target port for ingress | `number` | `80` | no |
-| <a name="input_ingress_transport"></a> [ingress\_transport](#input\_ingress\_transport) | Transport protocol for ingress (http, http2, tcp, auto) | `string` | `"auto"` | no |
 | <a name="input_internal_load_balancer_enabled"></a> [internal\_load\_balancer\_enabled](#input\_internal\_load\_balancer\_enabled) | Enable internal load balancer | `bool` | `false` | no |
-| <a name="input_key_vault_secrets"></a> [key\_vault\_secrets](#input\_key\_vault\_secrets) | List of Key Vault secrets to reference | <pre>list(object({<br/>    name                  = string<br/>    key_vault_id          = string<br/>    key_vault_secret_name = string<br/>  }))</pre> | `[]` | no |
 | <a name="input_location"></a> [location](#input\_location) | Target Azure location to deploy the resource | `string` | `"UK South"` | no |
 | <a name="input_log_analytics_workspace_id"></a> [log\_analytics\_workspace\_id](#input\_log\_analytics\_workspace\_id) | Log Analytics Workspace ID for Container App Environment | `string` | n/a | yes |
-| <a name="input_max_replicas"></a> [max\_replicas](#input\_max\_replicas) | Maximum number of replicas | `number` | `10` | no |
-| <a name="input_min_replicas"></a> [min\_replicas](#input\_min\_replicas) | Minimum number of replicas | `number` | `0` | no |
 | <a name="input_name"></a> [name](#input\_name) | The default name will be product+component+env, you can override the product+component part by setting this | `string` | `""` | no |
 | <a name="input_product"></a> [product](#input\_product) | https://hmcts.github.io/glossary/#product | `string` | n/a | yes |
 | <a name="input_project"></a> [project](#input\_project) | Project name - sds or cft. | `string` | n/a | yes |
-| <a name="input_registry_identity_id"></a> [registry\_identity\_id](#input\_registry\_identity\_id) | User Assigned Identity ID for pulling images from ACR | `string` | `null` | no |
-| <a name="input_registry_server"></a> [registry\_server](#input\_registry\_server) | Container registry server, e.g. myregistry.azurecr.io | `string` | `null` | no |
-| <a name="input_revision_mode"></a> [revision\_mode](#input\_revision\_mode) | Revision mode (Single or Multiple) | `string` | `"Single"` | no |
 | <a name="input_subnet_id"></a> [subnet\_id](#input\_subnet\_id) | Subnet ID for the Container App Environment | `string` | `null` | no |
 | <a name="input_zone_redundancy_enabled"></a> [zone\_redundancy\_enabled](#input\_zone\_redundancy\_enabled) | Enable zone redundancy | `bool` | `false` | no |
 
@@ -76,10 +225,10 @@ module "todo_resource_name" {
 | Name | Description |
 |------|-------------|
 | <a name="output_container_app_environment_id"></a> [container\_app\_environment\_id](#output\_container\_app\_environment\_id) | The ID of the Container App Environment |
-| <a name="output_container_app_fqdn"></a> [container\_app\_fqdn](#output\_container\_app\_fqdn) | The FQDN of the Container App |
-| <a name="output_container_app_id"></a> [container\_app\_id](#output\_container\_app\_id) | The ID of the Container App |
+| <a name="output_container_app_fqdns"></a> [container\_app\_fqdns](#output\_container\_app\_fqdns) | Map of container app names to their FQDNs (null if ingress not enabled) |
 | <a name="output_container_app_identity_principal_id"></a> [container\_app\_identity\_principal\_id](#output\_container\_app\_identity\_principal\_id) | The Principal ID of the Container App's managed identity |
-| <a name="output_container_app_name"></a> [container\_app\_name](#output\_container\_app\_name) | The name of the Container App |
+| <a name="output_container_app_ids"></a> [container\_app\_ids](#output\_container\_app\_ids) | Map of container app names to their IDs |
+| <a name="output_container_app_names"></a> [container\_app\_names](#output\_container\_app\_names) | Map of container app keys to their names |
 | <a name="output_resource_group_location"></a> [resource\_group\_location](#output\_resource\_group\_location) | The location of the resource group |
 | <a name="output_resource_group_name"></a> [resource\_group\_name](#output\_resource\_group\_name) | The name of the resource group |
 <!-- END_TF_DOCS -->

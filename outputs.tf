@@ -1,16 +1,19 @@
-output "container_app_id" {
-  description = "The ID of the Container App"
-  value       = azurerm_container_app.main.id
+output "container_app_ids" {
+  description = "Map of container app names to their IDs"
+  value       = { for k, v in azurerm_container_app.main : k => v.id }
 }
 
-output "container_app_name" {
-  description = "The name of the Container App"
-  value       = azurerm_container_app.main.name
+output "container_app_names" {
+  description = "Map of container app keys to their names"
+  value       = { for k, v in azurerm_container_app.main : k => v.name }
 }
 
-output "container_app_fqdn" {
-  description = "The FQDN of the Container App"
-  value       = var.ingress_enabled ? azurerm_container_app.main.ingress[0].fqdn : null
+output "container_app_fqdns" {
+  description = "Map of container app names to their FQDNs (null if ingress not enabled)"
+  value = {
+    for k, v in azurerm_container_app.main :
+    k => length(v.ingress) > 0 ? v.ingress[0].fqdn : null
+  }
 }
 
 output "container_app_environment_id" {

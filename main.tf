@@ -23,39 +23,41 @@ resource "azurerm_container_app_environment" "main" {
 }
 
 data "azurerm_key_vault_secret" "secrets" {
-  for_each = { for s in var.key_vault_secrets : s.name => s }
+  for_each = local.all_key_vault_secrets
 
   name         = each.value.key_vault_secret_name
   key_vault_id = each.value.key_vault_id
 }
 
 resource "azurerm_container_app" "main" {
-  name                         = "${local.name}-${var.env}"
+  for_each = var.container_apps
+
+  name                         = "${local.name}-${each.key}-${var.env}"
   container_app_environment_id = azurerm_container_app_environment.main.id
   resource_group_name          = local.resource_group_name
-  revision_mode                = var.revision_mode
+  revision_mode                = each.value.revision_mode
   workload_profile_name        = local.consumption_workload_profile_name
   tags                         = local.tags
 
   identity {
-    type         = var.registry_identity_id != null ? "UserAssigned" : "SystemAssigned"
-    identity_ids = var.registry_identity_id != null ? [var.registry_identity_id] : null
+    type         = each.value.registry_identity_id != null ? "UserAssigned" : "SystemAssigned"
+    identity_ids = each.value.registry_identity_id != null ? [each.value.registry_identity_id] : null
   }
 
   dynamic "registry" {
-    for_each = var.registry_identity_id != null && var.registry_server != null ? [1] : []
+    for_each = each.value.registry_identity_id != null && each.value.registry_server != null ? [1] : []
     content {
-      server   = var.registry_server
-      identity = var.registry_identity_id
+      server   = each.value.registry_server
+      identity = each.value.registry_identity_id
     }
   }
 
   template {
-    min_replicas = var.min_replicas
-    max_replicas = var.max_replicas
+    min_replicas = each.value.min_replicas
+    max_replicas = each.value.max_replicas
 
     dynamic "container" {
-      for_each = var.containers
+      for_each = each.value.containers
       content {
         name   = container.key
         image  = container.value.image
@@ -75,20 +77,20 @@ resource "azurerm_container_app" "main" {
   }
 
   dynamic "secret" {
-    for_each = var.key_vault_secrets
+    for_each = each.value.key_vault_secrets
     content {
       name  = secret.value.name
-      value = data.azurerm_key_vault_secret.secrets[secret.value.name].value
+      value = data.azurerm_key_vault_secret.secrets["${each.key}-${secret.value.name}"].value
     }
   }
 
   dynamic "ingress" {
-    for_each = var.ingress_enabled ? [1] : []
+    for_each = each.value.ingress_enabled ? [1] : []
     content {
-      external_enabled           = var.ingress_external_enabled
-      target_port                = var.ingress_target_port
-      transport                  = var.ingress_transport
-      allow_insecure_connections = var.ingress_allow_insecure_connections
+      external_enabled           = each.value.ingress_external_enabled
+      target_port                = each.value.ingress_target_port
+      transport                  = each.value.ingress_transport
+      allow_insecure_connections = each.value.ingress_allow_insecure_connections
 
       traffic_weight {
         latest_revision = true

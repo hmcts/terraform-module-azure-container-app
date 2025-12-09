@@ -22,20 +22,7 @@ module "container_app" {
   log_analytics_workspace_id = azurerm_log_analytics_workspace.test.id
   subnet_id                  = var.enable_vnet ? azurerm_subnet.test[0].id : null
 
-  ingress_enabled          = var.ingress_enabled
-  ingress_external_enabled = var.ingress_external_enabled
-  ingress_target_port      = var.ingress_target_port
-  ingress_transport        = var.ingress_transport
-
-  containers = var.containers
-
-  min_replicas = var.min_replicas
-  max_replicas = var.max_replicas
-
-  registry_server      = var.registry_server
-  registry_identity_id = var.registry_identity_id
-
-  key_vault_secrets = var.key_vault_secrets
+  container_apps = var.container_apps
 }
 
 # Supporting resources

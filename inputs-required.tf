@@ -23,16 +23,37 @@ variable "component" {
   type        = string
 }
 
-variable "containers" {
-  description = "Container configuration"
+variable "container_apps" {
+  description = "Map of container app configurations. Each key is the app name suffix."
   type = map(object({
-    image  = string
-    cpu    = number
-    memory = string
-    env = list(object({
-      name        = string
-      secret_name = string
-      value       = string
+    revision_mode = optional(string, "Single")
+    min_replicas  = optional(number, 0)
+    max_replicas  = optional(number, 10)
+
+    containers = map(object({
+      image  = string
+      cpu    = number
+      memory = string
+      env = list(object({
+        name        = string
+        secret_name = optional(string)
+        value       = optional(string)
+      }))
     }))
+
+    key_vault_secrets = optional(list(object({
+      name                  = string
+      key_vault_id          = string
+      key_vault_secret_name = string
+    })), [])
+
+    registry_identity_id = optional(string)
+    registry_server      = optional(string)
+
+    ingress_enabled                    = optional(bool, true)
+    ingress_external_enabled           = optional(bool, true)
+    ingress_target_port                = optional(number, 80)
+    ingress_transport                  = optional(string, "auto")
+    ingress_allow_insecure_connections = optional(bool, false)
   }))
 }

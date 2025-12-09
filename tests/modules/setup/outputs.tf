@@ -1,16 +1,16 @@
-output "container_app_id" {
-  description = "The ID of the Container App"
-  value       = module.container_app.container_app_id
+output "container_app_ids" {
+  description = "Map of container app IDs"
+  value       = module.container_app.container_app_ids
 }
 
-output "container_app_name" {
-  description = "The name of the Container App"
-  value       = module.container_app.container_app_name
+output "container_app_names" {
+  description = "Map of container app names"
+  value       = module.container_app.container_app_names
 }
 
-output "container_app_fqdn" {
-  description = "The FQDN of the Container App"
-  value       = module.container_app.container_app_fqdn
+output "container_app_fqdns" {
+  description = "Map of container app FQDNs"
+  value       = module.container_app.container_app_fqdns
 }
 
 output "container_app_environment_id" {

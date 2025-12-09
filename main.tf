@@ -17,6 +17,8 @@ resource "azurerm_container_app_environment" "main" {
   workload_profile {
     name                  = local.consumption_workload_profile_name
     workload_profile_type = "Consumption"
+    maximum_count         = null
+    minimum_count         = null
   }
 
   tags = local.tags

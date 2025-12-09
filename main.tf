@@ -6,13 +6,14 @@ resource "azurerm_user_assigned_identity" "container_app" {
 }
 
 resource "azurerm_container_app_environment" "main" {
-  name                           = "${local.name}-${var.env}-env"
-  location                       = local.resource_group_location
-  resource_group_name            = local.resource_group_name
-  log_analytics_workspace_id     = var.log_analytics_workspace_id
-  infrastructure_subnet_id       = var.subnet_id
-  internal_load_balancer_enabled = var.internal_load_balancer_enabled
-  zone_redundancy_enabled        = var.zone_redundancy_enabled
+  name                               = "${local.name}-${var.env}-env"
+  location                           = local.resource_group_location
+  resource_group_name                = local.resource_group_name
+  log_analytics_workspace_id         = var.log_analytics_workspace_id
+  infrastructure_subnet_id           = var.subnet_id
+  infrastructure_resource_group_name = local.resource_group_name
+  internal_load_balancer_enabled     = var.internal_load_balancer_enabled
+  zone_redundancy_enabled            = var.zone_redundancy_enabled
 
   workload_profile {
     name                  = local.consumption_workload_profile_name

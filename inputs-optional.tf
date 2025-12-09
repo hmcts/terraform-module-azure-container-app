@@ -108,12 +108,6 @@ variable "registry_identity_id" {
   default     = null
 }
 
-variable "workload_profile_name" {
-  description = "Workload profile name"
-  type        = string
-  default     = null
-}
-
 variable "registry_server" {
   description = "Container registry server, e.g. myregistry.azurecr.io"
   type        = string

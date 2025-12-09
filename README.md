@@ -69,7 +69,6 @@ module "todo_resource_name" {
 | <a name="input_registry_server"></a> [registry\_server](#input\_registry\_server) | Container registry server, e.g. myregistry.azurecr.io | `string` | `null` | no |
 | <a name="input_revision_mode"></a> [revision\_mode](#input\_revision\_mode) | Revision mode (Single or Multiple) | `string` | `"Single"` | no |
 | <a name="input_subnet_id"></a> [subnet\_id](#input\_subnet\_id) | Subnet ID for the Container App Environment | `string` | `null` | no |
-| <a name="input_workload_profile_name"></a> [workload\_profile\_name](#input\_workload\_profile\_name) | Workload profile name | `string` | `null` | no |
 | <a name="input_zone_redundancy_enabled"></a> [zone\_redundancy\_enabled](#input\_zone\_redundancy\_enabled) | Enable zone redundancy | `bool` | `false` | no |
 
 ## Outputs

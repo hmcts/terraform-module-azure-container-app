@@ -7,6 +7,8 @@ locals {
   tags = merge(var.common_tags, {
     project = var.project
   })
+
+  consumption_workload_profile_name = "consumption"
 }
 
 data "azurerm_resource_group" "existing" {

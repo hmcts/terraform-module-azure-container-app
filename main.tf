@@ -13,7 +13,13 @@ resource "azurerm_container_app_environment" "main" {
   infrastructure_subnet_id       = var.subnet_id
   internal_load_balancer_enabled = var.internal_load_balancer_enabled
   zone_redundancy_enabled        = var.zone_redundancy_enabled
-  tags                           = local.tags
+
+  workload_profile {
+    name                  = local.consumption_workload_profile_name
+    workload_profile_type = "Consumption"
+  }
+
+  tags = local.tags
 }
 
 data "azurerm_key_vault_secret" "secrets" {
@@ -28,7 +34,7 @@ resource "azurerm_container_app" "main" {
   container_app_environment_id = azurerm_container_app_environment.main.id
   resource_group_name          = local.resource_group_name
   revision_mode                = var.revision_mode
-  workload_profile_name        = var.workload_profile_name
+  workload_profile_name        = local.consumption_workload_profile_name
   tags                         = local.tags
 
   identity {

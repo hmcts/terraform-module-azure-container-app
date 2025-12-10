@@ -29,7 +29,7 @@ resource "azurerm_container_app_environment" "main" {
 }
 
 resource "azurerm_container_app_environment_certificate" "this" {
-  for_each                     = toset(var.environment_certificates)
+  for_each                     = var.environment_certificates
   name                         = each.key
   container_app_environment_id = azurerm_container_app_environment.main.id
 

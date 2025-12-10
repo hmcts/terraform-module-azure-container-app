@@ -2,6 +2,11 @@
 module "multi_container_apps" {
   source = "../"
 
+  providers = {
+    azurerm     = azurerm
+    azurerm.dns = azurerm.dns
+  }
+
   product   = "test"
   component = "multi"
   env       = var.env

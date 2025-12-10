@@ -101,6 +101,7 @@ resource "azurerm_container_app" "main" {
       target_port                = each.value.ingress_target_port
       transport                  = each.value.ingress_transport
       allow_insecure_connections = each.value.ingress_allow_insecure_connections
+      fqdn                       = each.value.custom_domain != null ? each.value.custom_domain.fqdn : null
 
       traffic_weight {
         latest_revision = true

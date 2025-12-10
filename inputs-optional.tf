@@ -38,3 +38,9 @@ variable "zone_redundancy_enabled" {
   type        = bool
   default     = false
 }
+
+variable "environment_certificates" {
+  description = "Map of Key Vault Secret IDs for certificates to be used in the Container App Environment."
+  type        = map(string)
+  default     = {}
+}

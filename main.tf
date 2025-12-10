@@ -28,6 +28,17 @@ resource "azurerm_container_app_environment" "main" {
   tags = local.tags
 }
 
+resource "azurerm_container_app_environment_certificate" "this" {
+  for_each                     = toset(var.environment_certificates)
+  name                         = each.key
+  container_app_environment_id = azurerm_container_app_environment.main.id
+
+  certificate_key_vault {
+    identity            = azurerm_user_assigned_identity.container_app.id
+    key_vault_secret_id = each.value
+  }
+}
+
 resource "azurerm_container_app" "main" {
   for_each = var.container_apps
 

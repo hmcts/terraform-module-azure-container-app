@@ -24,3 +24,9 @@ data "azurerm_resource_group" "existing" {
   name  = var.existing_resource_group_name
 }
 
+data "azurerm_key_vault_secret" "secrets" {
+  for_each = local.all_key_vault_secrets
+
+  name         = each.value.key_vault_secret_name
+  key_vault_id = each.value.key_vault_id
+}

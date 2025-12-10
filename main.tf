@@ -20,14 +20,12 @@ resource "azurerm_container_app_environment" "main" {
     workload_profile_type = "Consumption"
   }
 
+  identity {
+    type         = "UserAssigned"
+    identity_ids = [azurerm_user_assigned_identity.container_app.id]
+  }
+
   tags = local.tags
-}
-
-data "azurerm_key_vault_secret" "secrets" {
-  for_each = local.all_key_vault_secrets
-
-  name         = each.value.key_vault_secret_name
-  key_vault_id = each.value.key_vault_id
 }
 
 resource "azurerm_container_app" "main" {
@@ -98,5 +96,23 @@ resource "azurerm_container_app" "main" {
         percentage      = 100
       }
     }
+  }
+}
+
+resource "azurerm_container_app_custom_domain" "this" {
+  for_each         = { for k, v in var.container_apps : k => v if contains(keys(v), "custom_domain") }
+  name             = each.value.custom_domain.fqdn
+  container_app_id = azurerm_container_app.main[each.key].id
+}
+
+resource "azurerm_dns_txt_record" "this" {
+  for_each            = { for k, v in var.container_apps : k => v if contains(keys(v), "custom_domain") }
+  name                = each.value.custom_domain.fqdn
+  resource_group_name = each.value.custom_domain.zone_resource_group_name
+  zone_name           = each.value.custom_domain.zone_name
+  ttl                 = 300
+
+  record {
+    value = azurerm_container_app.main[each.key].custom_domain_verification_id
   }
 }

@@ -56,9 +56,10 @@ variable "container_apps" {
     ingress_transport                  = optional(string, "auto")
     ingress_allow_insecure_connections = optional(bool, false)
     custom_domain = optional(object({
-      zone_name                = string
-      zone_resource_group_name = string
-      fqdn                     = string
+      zone_name                   = string
+      zone_resource_group_name    = string
+      fqdn                        = string
+      environment_certificate_key = string
     }))
   }))
 }

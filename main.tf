@@ -111,9 +111,11 @@ resource "azurerm_container_app" "main" {
 }
 
 resource "azurerm_container_app_custom_domain" "this" {
-  for_each         = { for k, v in var.container_apps : k => v if contains(keys(v), "custom_domain") }
-  name             = each.value.custom_domain.fqdn
-  container_app_id = azurerm_container_app.main[each.key].id
+  for_each                                 = { for k, v in var.container_apps : k => v if contains(keys(v), "custom_domain") }
+  name                                     = each.value.custom_domain.fqdn
+  container_app_id                         = azurerm_container_app.main[each.key].id
+  container_app_environment_certificate_id = azurerm_container_app_environment_certificate.this[each.value.custom_domain.environment_certificate_key].id
+  certificate_binding_type                 = "SniEnabled"
 }
 
 resource "azurerm_dns_txt_record" "this" {

@@ -113,7 +113,7 @@ resource "azurerm_container_app" "main" {
 }
 
 resource "azurerm_container_app_custom_domain" "this" {
-  for_each                                 = { for k, v in var.container_apps : k => v if contains(keys(v), "custom_domain") }
+  for_each                                 = { for k, v in var.container_apps : k => v if v.custom_domain != null }
   name                                     = each.value.custom_domain.fqdn
   container_app_id                         = azurerm_container_app.main[each.key].id
   container_app_environment_certificate_id = azurerm_container_app_environment_certificate.this[each.value.custom_domain.environment_certificate_key].id
@@ -122,7 +122,7 @@ resource "azurerm_container_app_custom_domain" "this" {
 
 resource "azurerm_dns_txt_record" "this" {
   provider            = azurerm.dns
-  for_each            = { for k, v in var.container_apps : k => v if contains(keys(v), "custom_domain") }
+  for_each            = { for k, v in var.container_apps : k => v if v.custom_domain != null }
   name                = trimsuffix(each.value.custom_domain.fqdn, ".${each.value.custom_domain.zone_name}")
   resource_group_name = each.value.custom_domain.zone_resource_group_name
   zone_name           = each.value.custom_domain.zone_name

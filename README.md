@@ -189,6 +189,7 @@ output "all_app_names" {
 | Name | Version |
 |------|---------|
 | <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | >= 3.70.0 |
+| <a name="provider_azurerm.dns"></a> [azurerm.dns](#provider\_azurerm.dns) | >= 3.70.0 |
 
 ## Resources
 

@@ -106,6 +106,7 @@ resource "azurerm_container_app_custom_domain" "this" {
 }
 
 resource "azurerm_dns_txt_record" "this" {
+  provider            = azurerm.dns
   for_each            = { for k, v in var.container_apps : k => v if contains(keys(v), "custom_domain") }
   name                = each.value.custom_domain.fqdn
   resource_group_name = each.value.custom_domain.zone_resource_group_name

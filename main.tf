@@ -37,6 +37,8 @@ resource "azurerm_container_app_environment_certificate" "this" {
     identity            = azurerm_user_assigned_identity.container_app.id
     key_vault_secret_id = each.value
   }
+
+  tags = local.tags
 }
 
 resource "azurerm_container_app" "main" {

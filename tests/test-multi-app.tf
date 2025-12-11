@@ -189,19 +189,3 @@ output "resource_group_name" {
   description = "Resource group where resources are deployed"
   value       = module.multi_app_test.resource_group_name
 }
-
-# Test backwards compatibility outputs
-output "legacy_container_app_id" {
-  description = "Test backwards compatibility - should return first app"
-  value       = module.multi_app_test.container_app_id
-}
-
-output "legacy_container_app_name" {
-  description = "Test backwards compatibility - should return first app"
-  value       = module.multi_app_test.container_app_name
-}
-
-output "legacy_container_app_fqdn" {
-  description = "Test backwards compatibility - should return first app"
-  value       = module.multi_app_test.container_app_fqdn
-}

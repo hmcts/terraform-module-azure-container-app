@@ -12,9 +12,20 @@ provider "azurerm" {
   features {}
 }
 
+provider "azurerm" {
+  alias           = "dns"
+  subscription_id = "ed302caf-ec27-4c64-a05e-85731c3ce90e"
+  features {}
+}
+
 # Test deploying multiple container apps in a single environment
 module "multi_app_test" {
   source = "../"
+
+  providers = {
+    azurerm     = azurerm
+    azurerm.dns = azurerm.dns
+  }
 
   product   = "test"
   component = "multi"

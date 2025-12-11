@@ -6,50 +6,70 @@ resource "azurerm_user_assigned_identity" "container_app" {
 }
 
 resource "azurerm_container_app_environment" "main" {
-  name                           = "${local.name}-${var.env}-env"
-  location                       = local.resource_group_location
-  resource_group_name            = local.resource_group_name
-  log_analytics_workspace_id     = var.log_analytics_workspace_id
-  infrastructure_subnet_id       = var.subnet_id
-  internal_load_balancer_enabled = var.internal_load_balancer_enabled
-  zone_redundancy_enabled        = var.zone_redundancy_enabled
-  tags                           = local.tags
+  name                               = "${local.name}-${var.env}-env"
+  location                           = local.resource_group_location
+  resource_group_name                = local.resource_group_name
+  log_analytics_workspace_id         = var.log_analytics_workspace_id
+  infrastructure_subnet_id           = var.subnet_id
+  infrastructure_resource_group_name = "managed-${local.resource_group_name}"
+  internal_load_balancer_enabled     = var.internal_load_balancer_enabled
+  zone_redundancy_enabled            = var.zone_redundancy_enabled
+
+  workload_profile {
+    name                  = local.consumption_workload_profile_name
+    workload_profile_type = "Consumption"
+  }
+
+  identity {
+    type         = "UserAssigned"
+    identity_ids = [azurerm_user_assigned_identity.container_app.id]
+  }
+
+  tags = local.tags
 }
 
-data "azurerm_key_vault_secret" "secrets" {
-  for_each = { for s in var.key_vault_secrets : s.name => s }
+resource "azurerm_container_app_environment_certificate" "this" {
+  for_each                     = var.environment_certificates
+  name                         = each.key
+  container_app_environment_id = azurerm_container_app_environment.main.id
 
-  name         = each.value.key_vault_secret_name
-  key_vault_id = each.value.key_vault_id
+  certificate_key_vault {
+    identity            = azurerm_user_assigned_identity.container_app.id
+    key_vault_secret_id = each.value
+  }
+
+  tags = local.tags
 }
 
 resource "azurerm_container_app" "main" {
-  name                         = "${local.name}-${var.env}"
+  for_each = var.container_apps
+
+  name                         = "${local.name}-${each.key}-${var.env}"
   container_app_environment_id = azurerm_container_app_environment.main.id
   resource_group_name          = local.resource_group_name
-  revision_mode                = var.revision_mode
-  workload_profile_name        = var.workload_profile_name
+  revision_mode                = each.value.revision_mode
+  workload_profile_name        = local.consumption_workload_profile_name
   tags                         = local.tags
 
   identity {
-    type         = var.registry_identity_id != null ? "UserAssigned" : "SystemAssigned"
-    identity_ids = var.registry_identity_id != null ? [var.registry_identity_id] : null
+    type         = each.value.registry_identity_id != null ? "UserAssigned" : "SystemAssigned"
+    identity_ids = each.value.registry_identity_id != null ? [each.value.registry_identity_id] : null
   }
 
   dynamic "registry" {
-    for_each = var.registry_identity_id != null && var.registry_server != null ? [1] : []
+    for_each = each.value.registry_identity_id != null && each.value.registry_server != null ? [1] : []
     content {
-      server   = var.registry_server
-      identity = var.registry_identity_id
+      server   = each.value.registry_server
+      identity = each.value.registry_identity_id
     }
   }
 
   template {
-    min_replicas = var.min_replicas
-    max_replicas = var.max_replicas
+    min_replicas = each.value.min_replicas
+    max_replicas = each.value.max_replicas
 
     dynamic "container" {
-      for_each = var.containers
+      for_each = each.value.containers
       content {
         name   = container.key
         image  = container.value.image
@@ -69,20 +89,20 @@ resource "azurerm_container_app" "main" {
   }
 
   dynamic "secret" {
-    for_each = var.key_vault_secrets
+    for_each = each.value.key_vault_secrets
     content {
       name  = secret.value.name
-      value = data.azurerm_key_vault_secret.secrets[secret.value.name].value
+      value = data.azurerm_key_vault_secret.secrets["${each.key}-${secret.value.name}"].value
     }
   }
 
   dynamic "ingress" {
-    for_each = var.ingress_enabled ? [1] : []
+    for_each = each.value.ingress_enabled ? [1] : []
     content {
-      external_enabled           = var.ingress_external_enabled
-      target_port                = var.ingress_target_port
-      transport                  = var.ingress_transport
-      allow_insecure_connections = var.ingress_allow_insecure_connections
+      external_enabled           = each.value.ingress_external_enabled
+      target_port                = each.value.ingress_target_port
+      transport                  = each.value.ingress_transport
+      allow_insecure_connections = each.value.ingress_allow_insecure_connections
 
       traffic_weight {
         latest_revision = true
@@ -91,3 +111,25 @@ resource "azurerm_container_app" "main" {
     }
   }
 }
+
+resource "azurerm_container_app_custom_domain" "this" {
+  for_each                                 = { for k, v in var.container_apps : k => v if v.custom_domain != null }
+  name                                     = each.value.custom_domain.fqdn
+  container_app_id                         = azurerm_container_app.main[each.key].id
+  container_app_environment_certificate_id = azurerm_container_app_environment_certificate.this[each.value.custom_domain.environment_certificate_key].id
+  certificate_binding_type                 = "SniEnabled"
+}
+
+resource "azurerm_dns_txt_record" "this" {
+  provider            = azurerm.dns
+  for_each            = { for k, v in var.container_apps : k => v if v.custom_domain != null }
+  name                = trimsuffix(each.value.custom_domain.fqdn, ".${each.value.custom_domain.zone_name}")
+  resource_group_name = each.value.custom_domain.zone_resource_group_name
+  zone_name           = each.value.custom_domain.zone_name
+  ttl                 = 300
+
+  record {
+    value = azurerm_container_app.main[each.key].custom_domain_verification_id
+  }
+}
+

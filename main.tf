@@ -113,7 +113,7 @@ resource "azurerm_container_app" "main" {
       target_port                = each.value.ingress_target_port
       transport                  = each.value.ingress_transport
       allow_insecure_connections = each.value.ingress_allow_insecure_connections
-      client_certificate_mode    = "Ignore"
+      client_certificate_mode    = "ignore"
 
       traffic_weight {
         latest_revision = true

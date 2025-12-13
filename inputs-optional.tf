@@ -45,7 +45,7 @@ variable "environment_certificates" {
   default     = {}
 }
 
-variable "workflow_profiles" {
+variable "workload_profiles" {
   description = "Map of workload profiles for the Container App Environment."
   type = map(object({
     workload_profile_type = string

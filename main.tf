@@ -58,7 +58,7 @@ resource "azurerm_container_app" "main" {
   container_app_environment_id = azurerm_container_app_environment.main.id
   resource_group_name          = local.resource_group_name
   revision_mode                = each.value.revision_mode
-  workload_profile_name        = local.consumption_workload_profile_name
+  workload_profile_name        = lookup(each.value, "workload_profile_name", local.consumption_workload_profile_name)
   tags                         = local.tags
 
   identity {

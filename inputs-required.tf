@@ -26,10 +26,10 @@ variable "component" {
 variable "container_apps" {
   description = "Map of container app configurations. Each key is the app name suffix."
   type = map(object({
-    revision_mode = optional(string, "Single")
-    min_replicas  = optional(number, 0)
-    max_replicas  = optional(number, 10)
-
+    revision_mode         = optional(string, "Single")
+    min_replicas          = optional(number, 0)
+    max_replicas          = optional(number, 10)
+    workload_profile_name = optional(string)
     containers = map(object({
       image  = string
       cpu    = number

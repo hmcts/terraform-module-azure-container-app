@@ -20,6 +20,16 @@ resource "azurerm_container_app_environment" "main" {
     workload_profile_type = "Consumption"
   }
 
+  dynamic "workload_profile" {
+    for_each = var.workflow_profiles
+    content {
+      name                  = workload_profile.key
+      workload_profile_type = workload_profile.value.workload_profile_type
+      minimum_count         = lookup(workload_profile.value, "minimum_count", null)
+      maximum_count         = lookup(workload_profile.value, "maximum_count", null)
+    }
+  }
+
   identity {
     type         = "UserAssigned"
     identity_ids = [azurerm_user_assigned_identity.container_app.id]

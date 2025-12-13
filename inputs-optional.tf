@@ -44,3 +44,13 @@ variable "environment_certificates" {
   type        = map(string)
   default     = {}
 }
+
+variable "workflow_profiles" {
+  description = "Map of workload profiles for the Container App Environment."
+  type = map(object({
+    workload_profile_type = string
+    minimum_count         = optional(number, 0)
+    maximum_count         = optional(number, 5)
+  }))
+  default = {}
+}

@@ -144,3 +144,12 @@ resource "azurerm_dns_txt_record" "this" {
   }
 }
 
+resource "azurerm_private_dns_a_record" "private_a" {
+  provider            = azurerm.private_dns
+  for_each            = { for k, v in var.container_apps : k => v if v.custom_domain != null && v.custom_domain.private_dns_zone != null }
+  resource_group_name = each.value.custom_domain.private_dns_zone.resource_group_name
+  zone_name           = each.value.custom_domain.private_dns_zone.name
+  name                = trimsuffix(each.value.custom_domain.fqdn, ".${each.value.custom_domain.zone_name}")
+  records             = [azurerm_container_app_environment.main.static_ip_address]
+  ttl                 = 300
+}

@@ -60,6 +60,10 @@ variable "container_apps" {
       zone_resource_group_name    = string
       fqdn                        = string
       environment_certificate_key = string
+      private_dns_zone = optional(object({
+        name                = string
+        resource_group_name = string
+      }))
     }))
   }))
 }

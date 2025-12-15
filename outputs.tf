@@ -35,3 +35,8 @@ output "resource_group_location" {
   description = "The location of the resource group"
   value       = local.resource_group_location
 }
+
+output "app_environment_static_ip_address" {
+  description = "The static IP address of the Container App Environment. This won't change unless the environment is re-created."
+  value       = azurerm_container_app_environment.main.static_ip_address
+}

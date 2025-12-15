@@ -230,6 +230,7 @@ output "all_app_names" {
 
 | Name | Description |
 |------|-------------|
+| <a name="output_app_environment_static_ip_address"></a> [app\_environment\_static\_ip\_address](#output\_app\_environment\_static\_ip\_address) | The static IP address of the Container App Environment. This won't change unless the environment is re-created. |
 | <a name="output_container_app_environment_id"></a> [container\_app\_environment\_id](#output\_container\_app\_environment\_id) | The ID of the Container App Environment |
 | <a name="output_container_app_fqdns"></a> [container\_app\_fqdns](#output\_container\_app\_fqdns) | Map of container app names to their FQDNs (null if ingress not enabled) |
 | <a name="output_container_app_identity_principal_id"></a> [container\_app\_identity\_principal\_id](#output\_container\_app\_identity\_principal\_id) | The Principal ID of the Container App's managed identity |

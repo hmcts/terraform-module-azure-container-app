@@ -41,6 +41,12 @@ variable "container_apps" {
       }))
     }))
 
+    volumes = optional(map(object({
+      storage_name  = string
+      storage_type  = string
+      mount_options = optional(string)
+    })), {})
+
     key_vault_secrets = optional(list(object({
       name                  = string
       key_vault_id          = string

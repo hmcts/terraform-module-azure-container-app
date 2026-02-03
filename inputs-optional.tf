@@ -45,6 +45,16 @@ variable "environment_certificates" {
   default     = {}
 }
 
+variable "environment_storage" {
+  description = "Map of storage accounts and shares for the Container App Environment."
+  type = map(object({
+    account_name = string
+    share_name   = string
+    access_key   = optional(string)
+  }))
+  default = {}
+}
+
 variable "workload_profiles" {
   description = "Map of workload profiles for the Container App Environment."
   type = map(object({

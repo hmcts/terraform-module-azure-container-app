@@ -51,6 +51,16 @@ resource "azurerm_container_app_environment_certificate" "this" {
   tags = local.tags
 }
 
+resource "azurerm_container_app_environment_storage" "this" {
+  for_each                     = var.environment_storage
+  name                         = each.key
+  container_app_environment_id = azurerm_container_app_environment.main.id
+  account_name                 = each.value.account_name
+  share_name                   = each.value.share_name
+  access_key                   = try(each.value.access_key, null)
+  access_mode                  = "ReadOnly"
+}
+
 resource "azurerm_container_app" "main" {
   for_each = var.container_apps
 
@@ -94,6 +104,16 @@ resource "azurerm_container_app" "main" {
             value       = try(env.value.value, null)
           }
         }
+      }
+    }
+
+    dynamic "volume" {
+      for_each = each.value.volumes
+      content {
+        name          = volume.key
+        storage_name  = volume.value.storage_name
+        storage_type  = volume.value.storage_type
+        mount_options = try(volume.value.mount_options, null)
       }
     }
   }

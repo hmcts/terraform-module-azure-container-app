@@ -39,6 +39,10 @@ variable "container_apps" {
         secret_name = optional(string)
         value       = optional(string)
       }))
+      volume_mounts = optional(map(object({
+        path     = string
+        sub_path = optional(string)
+      })), {})
     }))
 
     volumes = optional(map(object({

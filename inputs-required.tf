@@ -67,7 +67,7 @@ variable "container_apps" {
     ingress_allow_insecure_connections = optional(bool, false)
     ingress_client_certificate_mode    = optional(string, "ignore")
     ingress_exposed_port               = optional(number)
-    ingress_additional_port_mappings   = optional(list(object({
+    ingress_additional_port_mappings = optional(list(object({
       port         = number
       external     = optional(bool, true)
       exposed_port = optional(number)

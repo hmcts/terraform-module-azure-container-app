@@ -140,6 +140,7 @@ resource "azurerm_container_app" "main" {
     content {
       external_enabled           = each.value.ingress_external_enabled
       target_port                = each.value.ingress_target_port
+      exposed_port               = each.value.ingress_exposed_port
       transport                  = each.value.ingress_transport
       allow_insecure_connections = each.value.ingress_allow_insecure_connections
       client_certificate_mode    = each.value.ingress_transport == "tcp" ? null : each.value.ingress_client_certificate_mode

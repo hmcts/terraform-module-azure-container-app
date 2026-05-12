@@ -14,7 +14,6 @@ resource "azurerm_container_app_environment" "main" {
   infrastructure_resource_group_name = "managed-${local.resource_group_name}"
   internal_load_balancer_enabled     = var.internal_load_balancer_enabled
   zone_redundancy_enabled            = var.zone_redundancy_enabled
-  static_ip_address                  = var.static_ip_address
 
   workload_profile {
     name                  = local.consumption_workload_profile_name

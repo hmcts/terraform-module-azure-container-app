@@ -64,3 +64,9 @@ variable "workload_profiles" {
   }))
   default = {}
 }
+
+variable "static_ip_address" {
+  description = "Static IP address for the Container App Environment (requires internal load balancer to be enabled)"
+  type        = string
+  default     = null
+}

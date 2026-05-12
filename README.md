@@ -226,6 +226,7 @@ output "all_app_names" {
 | <a name="input_name"></a> [name](#input\_name) | The default name will be product+component+env, you can override the product+component part by setting this | `string` | `""` | no |
 | <a name="input_product"></a> [product](#input\_product) | https://hmcts.github.io/glossary/#product | `string` | n/a | yes |
 | <a name="input_project"></a> [project](#input\_project) | Project name - sds or cft. | `string` | n/a | yes |
+| <a name="input_static_ip_address"></a> [static\_ip\_address](#input\_static\_ip\_address) | Static IP address for the Container App Environment (requires internal load balancer to be enabled) | `string` | `null` | no |
 | <a name="input_subnet_id"></a> [subnet\_id](#input\_subnet\_id) | Subnet ID for the Container App Environment | `string` | `null` | no |
 | <a name="input_workload_profiles"></a> [workload\_profiles](#input\_workload\_profiles) | Map of workload profiles for the Container App Environment. | <pre>map(object({<br/>    workload_profile_type = string<br/>    minimum_count         = optional(number, 0)<br/>    maximum_count         = optional(number, 5)<br/>  }))</pre> | `{}` | no |
 | <a name="input_zone_redundancy_enabled"></a> [zone\_redundancy\_enabled](#input\_zone\_redundancy\_enabled) | Enable zone redundancy | `bool` | `false` | no |

@@ -51,6 +51,7 @@ variable "environment_storage" {
     account_name = string
     share_name   = string
     access_key   = optional(string)
+    access_mode  = optional(string, "ReadOnly")
   }))
   default = {}
 }

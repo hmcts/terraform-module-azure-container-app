@@ -58,7 +58,7 @@ resource "azurerm_container_app_environment_storage" "this" {
   account_name                 = each.value.account_name
   share_name                   = each.value.share_name
   access_key                   = try(each.value.access_key, null)
-  access_mode                  = "ReadOnly"
+  access_mode                  = each.value.access_mode
 }
 
 resource "azurerm_container_app" "main" {

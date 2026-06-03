@@ -140,9 +140,19 @@ resource "azurerm_container_app" "main" {
     content {
       external_enabled           = each.value.ingress_external_enabled
       target_port                = each.value.ingress_target_port
+      exposed_port               = each.value.ingress_exposed_port
       transport                  = each.value.ingress_transport
       allow_insecure_connections = each.value.ingress_allow_insecure_connections
       client_certificate_mode    = each.value.ingress_transport == "tcp" ? null : each.value.ingress_client_certificate_mode
+
+      dynamic "additional_port_mappings" {
+        for_each = each.value.ingress_additional_port_mappings
+        content {
+          exposed_port = additional_port_mappings.value.exposed_port
+          target_port  = additional_port_mappings.value.target_port
+          external     = additional_port_mappings.value.external
+        }
+      }
 
       traffic_weight {
         latest_revision = true

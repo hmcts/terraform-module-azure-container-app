@@ -153,32 +153,32 @@ resource "azurerm_container_app" "main" {
 }
 
 resource "azurerm_container_app_custom_domain" "this" {
-  for_each                                 = { for k, v in var.container_apps : k => v if v.custom_domain != null }
-  name                                     = each.value.custom_domain.fqdn
-  container_app_id                         = azurerm_container_app.main[each.key].id
-  container_app_environment_certificate_id = azurerm_container_app_environment_certificate.this[each.value.custom_domain.environment_certificate_key].id
+  for_each                                 = local.all_custom_domains
+  name                                     = each.value.domain_fqdn
+  container_app_id                         = azurerm_container_app.main[each.value.app_key].id
+  container_app_environment_certificate_id = azurerm_container_app_environment_certificate.this[each.value.environment_certificate_key].id
   certificate_binding_type                 = "SniEnabled"
 }
 
 resource "azurerm_dns_txt_record" "this" {
   provider            = azurerm.dns
-  for_each            = { for k, v in var.container_apps : k => v if v.custom_domain != null }
-  name                = trimsuffix(each.value.custom_domain.fqdn, ".${each.value.custom_domain.zone_name}")
-  resource_group_name = each.value.custom_domain.zone_resource_group_name
-  zone_name           = each.value.custom_domain.zone_name
+  for_each            = local.all_custom_domains
+  name                = trimsuffix(each.value.domain_fqdn, ".${each.value.zone_name}")
+  resource_group_name = each.value.zone_resource_group_name
+  zone_name           = each.value.zone_name
   ttl                 = 300
 
   record {
-    value = azurerm_container_app.main[each.key].custom_domain_verification_id
+    value = azurerm_container_app.main[each.value.app_key].custom_domain_verification_id
   }
 }
 
 resource "azurerm_private_dns_a_record" "private_a" {
   provider            = azurerm.private_dns
-  for_each            = { for k, v in var.container_apps : k => v if v.custom_domain != null && v.custom_domain.private_dns_zone != null }
-  resource_group_name = each.value.custom_domain.private_dns_zone.resource_group_name
-  zone_name           = each.value.custom_domain.private_dns_zone.name
-  name                = trimsuffix(each.value.custom_domain.fqdn, ".${each.value.custom_domain.zone_name}")
+  for_each            = { for k, v in local.all_custom_domains : k => v if v.private_dns_zone != null }
+  resource_group_name = each.value.private_dns_zone.resource_group_name
+  zone_name           = each.value.private_dns_zone.name
+  name                = trimsuffix(each.value.domain_fqdn, ".${each.value.zone_name}")
   records             = [azurerm_container_app_environment.main.static_ip_address]
   ttl                 = 300
 }

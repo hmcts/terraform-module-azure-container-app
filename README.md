@@ -180,14 +180,14 @@ output "all_app_names" {
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.0 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | >= 3.70.0 |
 
 ## Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | >= 3.70.0 |
 | <a name="provider_azurerm.dns"></a> [azurerm.dns](#provider\_azurerm.dns) | >= 3.70.0 |
 | <a name="provider_azurerm.private_dns"></a> [azurerm.private\_dns](#provider\_azurerm.private\_dns) | >= 3.70.0 |
@@ -195,7 +195,7 @@ output "all_app_names" {
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [azurerm_container_app.main](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/container_app) | resource |
 | [azurerm_container_app_custom_domain.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/container_app_custom_domain) | resource |
 | [azurerm_container_app_environment.main](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/container_app_environment) | resource |
@@ -212,10 +212,10 @@ output "all_app_names" {
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_common_tags"></a> [common\_tags](#input\_common\_tags) | Common tag to be applied to resources | `map(string)` | n/a | yes |
 | <a name="input_component"></a> [component](#input\_component) | https://hmcts.github.io/glossary/#component | `string` | n/a | yes |
-| <a name="input_container_apps"></a> [container\_apps](#input\_container\_apps) | Map of container app configurations. Each key is the app name suffix. | <pre>map(object({<br/>    revision_mode         = optional(string, "Single")<br/>    min_replicas          = optional(number, 0)<br/>    max_replicas          = optional(number, 10)<br/>    workload_profile_name = optional(string)<br/>    containers = map(object({<br/>      image  = string<br/>      cpu    = number<br/>      memory = string<br/>      env = list(object({<br/>        name        = string<br/>        secret_name = optional(string)<br/>        value       = optional(string)<br/>      }))<br/>      volume_mounts = optional(map(object({<br/>        path     = string<br/>        sub_path = optional(string)<br/>      })), {})<br/>    }))<br/><br/>    volumes = optional(map(object({<br/>      storage_name  = string<br/>      storage_type  = string<br/>      mount_options = optional(string)<br/>    })), {})<br/><br/>    key_vault_secrets = optional(list(object({<br/>      name                  = string<br/>      key_vault_id          = string<br/>      key_vault_secret_name = string<br/>    })), [])<br/><br/>    registry_identity_id = optional(string)<br/>    registry_server      = optional(string)<br/><br/>    ingress_enabled                    = optional(bool, true)<br/>    ingress_external_enabled           = optional(bool, true)<br/>    ingress_target_port                = optional(number, 80)<br/>    ingress_transport                  = optional(string, "auto")<br/>    ingress_allow_insecure_connections = optional(bool, false)<br/>    ingress_client_certificate_mode    = optional(string, "ignore")<br/>    custom_domain = optional(object({<br/>      zone_name                   = string<br/>      zone_resource_group_name    = string<br/>      fqdn                        = string<br/>      environment_certificate_key = string<br/>      private_dns_zone = optional(object({<br/>        name                = string<br/>        resource_group_name = string<br/>      }))<br/>    }))<br/>  }))</pre> | n/a | yes |
+| <a name="input_container_apps"></a> [container\_apps](#input\_container\_apps) | Map of container app configurations. Each key is the app name suffix. | <pre>map(object({<br/>    revision_mode         = optional(string, "Single")<br/>    min_replicas          = optional(number, 0)<br/>    max_replicas          = optional(number, 10)<br/>    workload_profile_name = optional(string)<br/>    containers = map(object({<br/>      image  = string<br/>      cpu    = number<br/>      memory = string<br/>      env = list(object({<br/>        name        = string<br/>        secret_name = optional(string)<br/>        value       = optional(string)<br/>      }))<br/>      volume_mounts = optional(map(object({<br/>        path     = string<br/>        sub_path = optional(string)<br/>      })), {})<br/>    }))<br/><br/>    volumes = optional(map(object({<br/>      storage_name  = string<br/>      storage_type  = string<br/>      mount_options = optional(string)<br/>    })), {})<br/><br/>    key_vault_secrets = optional(list(object({<br/>      name                  = string<br/>      key_vault_id          = string<br/>      key_vault_secret_name = string<br/>    })), [])<br/><br/>    registry_identity_id = optional(string)<br/>    registry_server      = optional(string)<br/><br/>    ingress_enabled                    = optional(bool, true)<br/>    ingress_external_enabled           = optional(bool, true)<br/>    ingress_target_port                = optional(number, 80)<br/>    ingress_transport                  = optional(string, "auto")<br/>    ingress_allow_insecure_connections = optional(bool, false)<br/>    ingress_client_certificate_mode    = optional(string, "ignore")<br/>    custom_domains = optional(map(object({<br/>      zone_name                   = string<br/>      zone_resource_group_name    = string<br/>      environment_certificate_key = string<br/>      private_dns_zone = optional(object({<br/>        name                = string<br/>        resource_group_name = string<br/>      }))<br/>    })))<br/>  }))</pre> | n/a | yes |
 | <a name="input_env"></a> [env](#input\_env) | Environment value | `string` | n/a | yes |
 | <a name="input_environment_certificates"></a> [environment\_certificates](#input\_environment\_certificates) | Map of Key Vault Secret IDs for certificates to be used in the Container App Environment. | `map(string)` | `{}` | no |
 | <a name="input_environment_storage"></a> [environment\_storage](#input\_environment\_storage) | Map of storage accounts and shares for the Container App Environment. | <pre>map(object({<br/>    account_name = string<br/>    share_name   = string<br/>    access_key   = optional(string)<br/>    access_mode  = optional(string, "ReadOnly")<br/>  }))</pre> | `{}` | no |
@@ -233,7 +233,7 @@ output "all_app_names" {
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_app_environment_static_ip_address"></a> [app\_environment\_static\_ip\_address](#output\_app\_environment\_static\_ip\_address) | The static IP address of the Container App Environment. This won't change unless the environment is re-created. |
 | <a name="output_container_app_environment_id"></a> [container\_app\_environment\_id](#output\_container\_app\_environment\_id) | The ID of the Container App Environment |
 | <a name="output_container_app_fqdns"></a> [container\_app\_fqdns](#output\_container\_app\_fqdns) | Map of container app names to their FQDNs (null if ingress not enabled) |

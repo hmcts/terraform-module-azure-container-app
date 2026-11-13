@@ -17,6 +17,17 @@ locals {
       "${app_key}-${secret.name}" => secret
     }
   ]...)
+
+  # Flatten custom domains from all apps so each app can define multiple domains.
+  all_custom_domains = merge([
+    for app_key, app in var.container_apps : {
+      for domain_fqdn, custom_domain in try(app.custom_domains, {}) :
+      "${app_key}-${domain_fqdn}" => merge(custom_domain, {
+        app_key     = app_key
+        domain_fqdn = domain_fqdn
+      })
+    }
+  ]...)
 }
 
 data "azurerm_resource_group" "existing" {

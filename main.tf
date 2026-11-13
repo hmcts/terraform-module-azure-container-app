@@ -47,9 +47,17 @@ resource "azurerm_monitor_diagnostic_setting" "main" {
   log_analytics_destination_type = "Dedicated"
 
   dynamic "enabled_log" {
-    for_each = var.logging.enabled_log_categories
+    for_each = var.logging.enabled_log_categories != null ? var.logging.enabled_log_categories : []
     content {
       category = enabled_log.value
+    }
+  }
+
+  # Category groups are used when no explicit categories are given, defaulting to "allLogs"
+  dynamic "enabled_log" {
+    for_each = var.logging.enabled_log_categories != null ? [] : (var.logging.enabled_log_category_groups != null ? var.logging.enabled_log_category_groups : ["allLogs"])
+    content {
+      category_group = enabled_log.value
     }
   }
 

@@ -180,14 +180,14 @@ output "all_app_names" {
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.0 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | >= 3.70.0 |
 
 ## Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | >= 3.70.0 |
 | <a name="provider_azurerm.dns"></a> [azurerm.dns](#provider\_azurerm.dns) | >= 3.70.0 |
 | <a name="provider_azurerm.private_dns"></a> [azurerm.private\_dns](#provider\_azurerm.private\_dns) | >= 3.70.0 |
@@ -195,7 +195,7 @@ output "all_app_names" {
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [azurerm_container_app.main](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/container_app) | resource |
 | [azurerm_container_app_custom_domain.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/container_app_custom_domain) | resource |
 | [azurerm_container_app_environment.main](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/container_app_environment) | resource |
@@ -203,6 +203,7 @@ output "all_app_names" {
 | [azurerm_container_app_environment_storage.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/container_app_environment_storage) | resource |
 | [azurerm_dns_txt_record.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/dns_txt_record) | resource |
 | [azurerm_management_lock.rg_lock](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/management_lock) | resource |
+| [azurerm_monitor_diagnostic_setting.main](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_diagnostic_setting) | resource |
 | [azurerm_private_dns_a_record.private_a](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_dns_a_record) | resource |
 | [azurerm_resource_group.rg](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) | resource |
 | [azurerm_user_assigned_identity.container_app](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/user_assigned_identity) | resource |
@@ -212,7 +213,7 @@ output "all_app_names" {
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_common_tags"></a> [common\_tags](#input\_common\_tags) | Common tag to be applied to resources | `map(string)` | n/a | yes |
 | <a name="input_component"></a> [component](#input\_component) | https://hmcts.github.io/glossary/#component | `string` | n/a | yes |
 | <a name="input_container_apps"></a> [container\_apps](#input\_container\_apps) | Map of container app configurations. Each key is the app name suffix. | <pre>map(object({<br/>    revision_mode         = optional(string, "Single")<br/>    min_replicas          = optional(number, 0)<br/>    max_replicas          = optional(number, 10)<br/>    workload_profile_name = optional(string)<br/>    containers = map(object({<br/>      image  = string<br/>      cpu    = number<br/>      memory = string<br/>      env = list(object({<br/>        name        = string<br/>        secret_name = optional(string)<br/>        value       = optional(string)<br/>      }))<br/>      volume_mounts = optional(map(object({<br/>        path     = string<br/>        sub_path = optional(string)<br/>      })), {})<br/>    }))<br/><br/>    volumes = optional(map(object({<br/>      storage_name  = string<br/>      storage_type  = string<br/>      mount_options = optional(string)<br/>    })), {})<br/><br/>    key_vault_secrets = optional(list(object({<br/>      name                  = string<br/>      key_vault_id          = string<br/>      key_vault_secret_name = string<br/>    })), [])<br/><br/>    registry_identity_id = optional(string)<br/>    registry_server      = optional(string)<br/><br/>    ingress_enabled                    = optional(bool, true)<br/>    ingress_external_enabled           = optional(bool, true)<br/>    ingress_target_port                = optional(number, 80)<br/>    ingress_transport                  = optional(string, "auto")<br/>    ingress_allow_insecure_connections = optional(bool, false)<br/>    ingress_client_certificate_mode    = optional(string, "ignore")<br/>    custom_domains = optional(map(object({<br/>      zone_name                   = string<br/>      zone_resource_group_name    = string<br/>      environment_certificate_key = string<br/>      private_dns_zone = optional(object({<br/>        name                = string<br/>        resource_group_name = string<br/>      }))<br/>    })))<br/>  }))</pre> | n/a | yes |
@@ -222,7 +223,7 @@ output "all_app_names" {
 | <a name="input_existing_resource_group_name"></a> [existing\_resource\_group\_name](#input\_existing\_resource\_group\_name) | Name of existing resource group to deploy resources into | `string` | `null` | no |
 | <a name="input_internal_load_balancer_enabled"></a> [internal\_load\_balancer\_enabled](#input\_internal\_load\_balancer\_enabled) | Enable internal load balancer | `bool` | `false` | no |
 | <a name="input_location"></a> [location](#input\_location) | Target Azure location to deploy the resource | `string` | `"UK South"` | no |
-| <a name="input_log_analytics_workspace_id"></a> [log\_analytics\_workspace\_id](#input\_log\_analytics\_workspace\_id) | Log Analytics Workspace ID for Container App Environment | `string` | n/a | yes |
+| <a name="input_logging"></a> [logging](#input\_logging) | Logging configuration for the Container App Environment | <pre>object({<br/>    log_analytics_workspace_id = string<br/>    log_destination            = optional(string, "log-analytics")<br/>    enabled_log_categories     = optional(list(string), ["ContainerAppConsoleLogs"])<br/>    enabled_metric_categories  = optional(list(string), ["AllMetrics"])<br/>  })</pre> | `null` | no |
 | <a name="input_name"></a> [name](#input\_name) | The default name will be product+component+env, you can override the product+component part by setting this | `string` | `""` | no |
 | <a name="input_product"></a> [product](#input\_product) | https://hmcts.github.io/glossary/#product | `string` | n/a | yes |
 | <a name="input_project"></a> [project](#input\_project) | Project name - sds or cft. | `string` | n/a | yes |
@@ -233,7 +234,7 @@ output "all_app_names" {
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_app_environment_static_ip_address"></a> [app\_environment\_static\_ip\_address](#output\_app\_environment\_static\_ip\_address) | The static IP address of the Container App Environment. This won't change unless the environment is re-created. |
 | <a name="output_container_app_environment_id"></a> [container\_app\_environment\_id](#output\_container\_app\_environment\_id) | The ID of the Container App Environment |
 | <a name="output_container_app_fqdns"></a> [container\_app\_fqdns](#output\_container\_app\_fqdns) | Map of container app names to their FQDNs (null if ingress not enabled) |

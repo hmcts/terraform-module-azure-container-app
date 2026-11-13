@@ -9,7 +9,8 @@ resource "azurerm_container_app_environment" "main" {
   name                               = "${local.name}-${var.env}-env"
   location                           = local.resource_group_location
   resource_group_name                = local.resource_group_name
-  log_analytics_workspace_id         = var.log_analytics_workspace_id
+  log_analytics_workspace_id         = var.logging != null ? var.logging.log_destination == "log-analytics" ? var.logging.log_analytics_workspace_id : null : null
+  logs_destination                   = var.logging != null ? var.logging.log_destination : null
   infrastructure_subnet_id           = var.subnet_id
   infrastructure_resource_group_name = "managed-${local.resource_group_name}"
   internal_load_balancer_enabled     = var.internal_load_balancer_enabled
@@ -36,6 +37,28 @@ resource "azurerm_container_app_environment" "main" {
   }
 
   tags = local.tags
+}
+
+resource "azurerm_monitor_diagnostic_setting" "main" {
+  count                          = var.logging != null && var.logging.log_destination != "log-analytics" && var.logging.log_analytics_workspace_id != null ? 1 : 0
+  name                           = "${local.name}-${var.env}-diag"
+  target_resource_id             = azurerm_container_app_environment.main.id
+  log_analytics_workspace_id     = var.logging.log_analytics_workspace_id
+  log_analytics_destination_type = "Dedicated"
+
+  dynamic "enabled_log" {
+    for_each = var.logging.enabled_log_categories
+    content {
+      category = enabled_log.value
+    }
+  }
+
+  dynamic "enabled_metric" {
+    for_each = var.logging.enabled_metric_categories
+    content {
+      category = enabled_metric.value
+    }
+  }
 }
 
 resource "azurerm_container_app_environment_certificate" "this" {
